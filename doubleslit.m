@@ -8,7 +8,7 @@ function P = doubleslit(pgo1_in, pgo2_in)
 % pgo=0 <=> the gap is always closed (always observed)
 % OUTPUT:
 % P - probability of detecting a particle on the detector board 
-% (c) Szymon £ukaszyk
+% (c) Szymon Â£ukaszyk
 % email: szymon@patent.pl
 % History
 % 26.05.2020 1st published version (errors presumed)
@@ -40,7 +40,8 @@ switch nargin
         pgo1 = pgo1_in;
         pgo2 = pgo2_in;
     case 1
-        pgo2 = pgo2_in;
+        pgo1 = pgo1_in;
+        pgo2 = 1;
     otherwise
         pgo1 = 1;
         pgo2 = 1;
