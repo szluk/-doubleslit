@@ -47,10 +47,6 @@ switch nargin
         pgo2 = 1;
 end
 
-pgo1
-pgo2
-
-
 %lmb = 0.75*10^-6; % [m] (750 nm)
 lmb = 0.75; % micrometr (we scale all dimensions in micrometres)
 dlt = 0.1;
