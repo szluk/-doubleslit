@@ -1,30 +1,31 @@
-function P = doubleslit(pgo1_in, pgo2_in)
+function F = doubleslit(pgo1_in, pgo2_in)
 % Double slit experiment based on Richard P. Feynman description
 % in "QED The Strange Theory of Light and Matter".
-% Illustrates relation between distinguishability and interference. 
+% Illustrates the relation between distinguishability and interference. 
 % INPUT:
 % probabilities of opening the gaps
 % pgo=1 <=> the gap is always open (always not observed); this is default value
 % pgo=0 <=> the gap is always closed (always observed)
 % OUTPUT:
 % P - probability of detecting a particle on the detector board 
-% (c) Szymon Â£ukaszyk
+% (c) Szymon £ukaszyk
 % email: szymon@patent.pl
 % History
 % 26.05.2020 1st published version (errors presumed)
+% 09.02.2021 2nd published version
 
 %Double slit configuration
 % (x, y) - coordinates
 % S      - source defining the level line (x)
 % D      - detector board
-% g1, g2 - top and bottom slit widths
+% g1, g2 - top (right) and bottom (left) slit widths
 % h1, h2 - height from the level line to respectively the bottom edge of the top gap and the top edge of the bottom gap 
 % L1     - length from the source S to the board with gaps
 % L2     - length from the board with gaps to the detector board
 % dlt    - numerical resolution
 % lmb    - wavelength (red EMR wavelength of 750 nm is assumed) 
 
-% Note that we now assume infinitesimal thickness of this board. An upgrade should take it into account.
+% Note that we now assume zero thickness of the board with gaps. An upgrade should take it into account.
 %  
 %|\y          |              D,y
 %|            g1,y1          | 
@@ -47,24 +48,23 @@ switch nargin
         pgo2 = 1;
 end
 
-%lmb = 0.75*10^-6; % [m] (750 nm)
-lmb = 0.75; % micrometr (we scale all dimensions in micrometres)
-dlt = 0.1;
+lmb = 0.75*10^-6; %[m] (=750 nm) infrared
+dlt = 0.1*10^-6;
 
-L1 = 5000; %[=0.5 m] % QED p. 78
-L2 = 5000; %[=0.5 m] % QED p. 78
-h1 = 50; % (+)
-h2 = 50; % (-)
-g1 = 10; % (+) [=0.01 mm] % QED p. 78
-g2 = 10; % (-) [=0.01 mm] % QED p. 78
+L1 = 5000*10^-6; % = 5 mm
+L2 = 5000*10^-6; % = 5 mm
+h1 = 50*10^-6;   % = 50 micrometr (human hair)
+h2 = 50*10^-6;   % = 50 micrometr (human hair)
+g1 = 10*10^-6;   % = 10 micrometr
+g2 = 10*10^-6;   % = 10 micrometr
 
 H1 =  h1; HG1 = h1+g1;    % top gap coordinates
 H2 = -h2; HG2 = -(h2+g2); % bottom gap coordinates
-y1 = H1 :dlt:HG1;         % wandering coordinate of the top gap
-y2 = HG2:dlt:H2;          % wandering coordinate of the bottom gap
-y = -4*h1:dlt:4*h2;       % wandering coordinate of the detector
+y1 = H1 :dlt:HG1;         % variable coordinate of the top gap
+y2 = HG2:dlt:H2;          % variable coordinate of the bottom gap
+y = -5*h1:dlt:5*h2;       % variable coordinate of the detector
 
-% calculate paths between the source and the detector board
+% calculate paths between the source and the detector board for each detector position
 for k=1:length(y)
   d11 = sqrt(L1^2 + y1.^2);         % from the source to the top gap
   d21 = sqrt(L2^2 + (y(k)-y1).^2);  % from the top gap to the detector board
@@ -114,6 +114,22 @@ for k=1:length(y)
 end
 
 figure
-plot(y,P)
+F=plot(y,P)
+x_lab=sprintf('Screen width [m]\n(L_1=L_2=5 mm; h_1=h_2=50 µm; g_1=g_2=10 µm; \\lambda=750 nm [infrared])');
+
+xlabel(x_lab)
+ylabel('Detection probability');
+tit_lab = sprintf('Gap observation probabilities: p(left)=%3.2f, p(right)=%3.2f', 1-pgo2_in, 1-pgo1_in);
+title(tit_lab);
+
+axis([min(y) max(y) 0 1]);
+
+line([H1  H1 ], [0 1],'LineStyle',':')
+line([HG1 HG1], [0 1],'LineStyle',':')
+
+line([H2  H2 ], [0 1],'LineStyle',':')
+line([HG2 HG2], [0 1],'LineStyle',':')
+
+%line([0 1*10^-4], [-1 1],'LineStyle',':')
 
 return
