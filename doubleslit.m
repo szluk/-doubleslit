@@ -3,9 +3,9 @@ function F = doubleslit(pgo1_in, pgo2_in)
 % in "QED The Strange Theory of Light and Matter".
 % Illustrates the relation between distinguishability and interference. 
 % INPUT:
-% probabilities of opening the gaps
-% pgo=1 <=> the gap is always open (always not observed); this is default value
-% pgo=0 <=> the gap is always closed (always observed)
+% probabilities of opening the slits
+% pgo=1 <=> the slit is always open (always not observed); this is default value
+% pgo=0 <=> the slit is always closed (always observed)
 % OUTPUT:
 % P - probability of detecting a particle on the detector board 
 % (c) Szymon £ukaszyk
@@ -13,19 +13,20 @@ function F = doubleslit(pgo1_in, pgo2_in)
 % History
 % 26.05.2020 1st published version (errors presumed)
 % 09.02.2021 2nd published version
+% 14.06.2021 4rd classical Thomas Young description
 
 %Double slit configuration
 % (x, y) - coordinates
 % S      - source defining the level line (x)
 % D      - detector board
 % g1, g2 - top (right) and bottom (left) slit widths
-% h1, h2 - height from the level line to respectively the bottom edge of the top gap and the top edge of the bottom gap 
-% L1     - length from the source S to the board with gaps
-% L2     - length from the board with gaps to the detector board
+% h1, h2 - height from the level line to respectively the bottom edge of the top slit and the top edge of the bottom slit 
+% L1     - length from the source S to the board with slits
+% L2     - length from the board with slits to the detector board
 % dlt    - numerical resolution
 % lmb    - wavelength (red EMR wavelength of 750 nm is assumed) 
 
-% Note that we now assume zero thickness of the board with gaps. An upgrade should take it into account.
+% Note that we now assume zero thickness of the board with slits. An upgrade should take it into account.
 %  
 %|\y          |              D,y
 %|            g1,y1          | 
@@ -49,29 +50,34 @@ switch nargin
 end
 
 lmb = 0.75*10^-6; %[m] (=750 nm) infrared
+%lmb = 0.5*10^-6; %[m] (=500 nm) green
+%lmb = .1*10^-6; %[m] ?
 dlt = 0.1*10^-6;
 
 L1 = 5000*10^-6; % = 5 mm
+%L1 = 7000*10^-6; % OUT
 L2 = 5000*10^-6; % = 5 mm
 h1 = 50*10^-6;   % = 50 micrometr (human hair)
+%h1 = 30*10^-6;   % OUT
 h2 = 50*10^-6;   % = 50 micrometr (human hair)
 g1 = 10*10^-6;   % = 10 micrometr
+%g1 = 5*10^-6;    % OUT
 g2 = 10*10^-6;   % = 10 micrometr
 
-H1 =  h1; HG1 = h1+g1;    % top gap coordinates
-H2 = -h2; HG2 = -(h2+g2); % bottom gap coordinates
-y1 = H1 :dlt:HG1;         % variable coordinate of the top gap
-y2 = HG2:dlt:H2;          % variable coordinate of the bottom gap
+H1 =  h1; HG1 = h1+g1;    % top slit coordinates
+H2 = -h2; HG2 = -(h2+g2); % bottom slit coordinates
+y1 = H1 :dlt:HG1;         % variable coordinate of the top slit
+y2 = HG2:dlt:H2;          % variable coordinate of the bottom slit
 y = -5*h1:dlt:5*h2;       % variable coordinate of the detector
 
 % calculate paths between the source and the detector board for each detector position
 for k=1:length(y)
-  d11 = sqrt(L1^2 + y1.^2);         % from the source to the top gap
-  d21 = sqrt(L2^2 + (y(k)-y1).^2);  % from the top gap to the detector board
+  d11 = sqrt(L1^2 + y1.^2);         % from the source to the top slit
+  d21 = sqrt(L2^2 + (y(k)-y1).^2);  % from the top slit to the detector board
   d1 = d11+d21;
 
-  d12 = sqrt(L1^2 + y2.^2);         % from the source to the bottom gap
-  d22 = sqrt(L2^2 + (y(k)-y2).^2);  % from the bottom gap to the detector board
+  d12 = sqrt(L1^2 + y2.^2);         % from the source to the bottom slit
+  d22 = sqrt(L2^2 + (y(k)-y2).^2);  % from the bottom slit to the detector board
   d2 = d12+d22;
 
   % calculate phasors
@@ -89,8 +95,8 @@ for k=1:length(y)
   dy=0;
   ns=0; % number of arrows
 
-  b1 = pgo1; a1 = b1-1; % range of uniform probability distribution of the top gap detector
-  b2 = pgo2; a2 = b2-1; % range of uniform probability distribution of the bottom gap detector
+  b1 = pgo1; a1 = b1-1; % range of uniform probability distribution of the top slit detector
+  b2 = pgo2; a2 = b2-1; % range of uniform probability distribution of the bottom slit detector
 
   for l=1:length(sx1)
     go1 = a1 + (b1-a1).*rand(1);
@@ -114,22 +120,42 @@ for k=1:length(y)
 end
 
 figure
-F=plot(y,P)
+F=plot(y,P);
 x_lab=sprintf('Screen width [m]\n(L_1=L_2=5 mm; h_1=h_2=50 µm; g_1=g_2=10 µm; \\lambda=750 nm [infrared])');
 
 xlabel(x_lab)
 ylabel('Detection probability');
-tit_lab = sprintf('Gap observation probabilities: p(left)=%3.2f, p(right)=%3.2f', 1-pgo2_in, 1-pgo1_in);
+tit_lab = sprintf('Slit observation probabilities: p(left)=%3.2f, p(right)=%3.2f', 1-pgo2, 1-pgo1);
 title(tit_lab);
 
 axis([min(y) max(y) 0 1]);
+line([min(y) max(y)], [0 0])
 
-line([H1  H1 ], [0 1],'LineStyle',':')
-line([HG1 HG1], [0 1],'LineStyle',':')
+line([0  0], [-1 1],'LineStyle',':')
 
-line([H2  H2 ], [0 1],'LineStyle',':')
-line([HG2 HG2], [0 1],'LineStyle',':')
+line([H1  H1 ], [-1 1],'LineStyle',':')
+line([HG1 HG1], [-1 1],'LineStyle',':')
 
-%line([0 1*10^-4], [-1 1],'LineStyle',':')
+line([H2  H2 ], [-1 1],'LineStyle',':')
+line([HG2 HG2], [-1 1],'LineStyle',':')
+
+[Pmax, i]=max(P); %i=3601
+line([0 y(i)], [-1 1],'LineStyle',':')
+line([0 -y(i)], [-1 1],'LineStyle',':')
+
+% classical description
+d = (h1+h2) + (g1+g2)/2;
+y = 0; % k=0 lmb
+line([y  y ], [-1 1],'LineStyle','--','Color','r')  
+
+for k=1:11
+  y = L2*tan( asin(k*lmb/d) );
+  line([y  y ], [-1 1],'LineStyle','--','Color','r')  
+  line([-y  -y ], [-1 1],'LineStyle','--','Color','r')
+
+  y = L2*tan( asin((k-0.5)*lmb/d) );
+  line([y  y ], [-1 1],'LineStyle','--','Color','g')
+  line([-y  -y ], [-1 1],'LineStyle','--','Color','g')
+end
 
 return
